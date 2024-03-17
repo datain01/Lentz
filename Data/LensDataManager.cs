@@ -80,6 +80,20 @@ public class LensDataManager : MonoBehaviour
         }
     }
 
+    public bool GetIsLensMetered(string lensTag)
+{
+    if (lensTag == "LensLeft")
+    {
+        return LensDataLeft.IsMeterChecked;
+    }
+    else if (lensTag == "LensRight")
+    {
+        return LensDataRight.IsMeterChecked;
+    }
+    return false;
+}
+
+
 
 }
 

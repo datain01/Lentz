@@ -48,6 +48,19 @@ public class DragController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         {
             if (RectTransformUtility.RectangleContainsScreenPoint(targetArea, eventData.position, eventData.pressEventCamera))
             {
+                if (targetArea.CompareTag("Enhancer"))
+                {
+                    // 렌즈가 미터로 체크된 상태인지 확인
+                    bool isLensMetered = lensDataManager.GetIsLensMetered(gameObject.tag);
+
+                    if (isLensMetered)
+                    {
+                        // 미터로 체크된 경우, Enhancer에 달라붙음
+                        rectTransform.anchoredPosition = targetArea.anchoredPosition;
+                    }
+                    // 미터로 체크되지 않은 경우, 현재 위치에 머물도록 별도의 조치를 취하지 않음
+                    return; // Enhancer 처리 후 for 루프 종료
+                }
 
                 // TargetBase
                 rectTransform.anchoredPosition = targetArea.anchoredPosition;
