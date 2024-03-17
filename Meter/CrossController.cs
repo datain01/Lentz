@@ -4,9 +4,9 @@ using UnityEngine.UI;
 public class CrossController : MonoBehaviour
 {
     public static CrossController Instance;
-
     public Image crossBlurImage;
-    public Sprite[] blurLevels;
+    public Sprite[] CrossLevels;
+    private int currentBlurLevel; // 현재 블러 레벨을 추적하는 변수
 
     private void Awake()
     {
@@ -15,23 +15,34 @@ public class CrossController : MonoBehaviour
 
     void Start()
     {
-        // 게임 시작 시 CrossBlur 이미지를 비활성화
         crossBlurImage.enabled = false;
-        Debug.Log("Cross Blur 이미지 비활성화");
     }
-
 
     public void UpdateCrossBlurLevel(int blurLevel)
     {
-        int imageIndex = Mathf.Clamp(blurLevel / 2, 0, blurLevels.Length - 1);
-        crossBlurImage.sprite = blurLevels[imageIndex];
-        UpdateCrossBlurImageVisibility(blurLevel > 0);
+        currentBlurLevel = blurLevel; // 현재 블러 레벨을 업데이트
+        int imageIndex = Mathf.Clamp(currentBlurLevel / 2, 0, CrossLevels.Length - 1);
+        crossBlurImage.sprite = CrossLevels[imageIndex];
+        crossBlurImage.enabled = currentBlurLevel > 0;
+    }
+
+    // 스크롤 방향에 따른 블러 레벨 조정
+    public void AdjustBlurLevelByScroll(int direction)
+    {
+        // 방향에 따라 블러 레벨 조정
+        currentBlurLevel = Mathf.Clamp(currentBlurLevel - direction, 0, 10);
+        UpdateCrossBlurLevel(currentBlurLevel);
     }
 
     public void UpdateCrossBlurImageVisibility(bool isVisible)
     {
-        // Image 컴포넌트의 활성화/비활성화를 제어
         crossBlurImage.enabled = isVisible;
     }
+
+    public bool IsBlurLevelMinimum()
+    {
+        return currentBlurLevel <= 0;
+    }
+
 
 }
