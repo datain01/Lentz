@@ -1,2 +1,2 @@
-#Project Lentz
+# Project Lentz
 ## C# game project
