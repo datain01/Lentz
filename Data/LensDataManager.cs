@@ -74,6 +74,9 @@ public class LensData
     public float Cylindrical { get; private set; }
     public int Lightrical { get; private set; }
 
+    public bool IsLensMetered { get; private set; } = false; // 렌즈가 미터로 체크되었는지 나타내는 변수
+
+
     private float blurFactorSpherical = 0.6f;
     private float blurFactorCylindrical = 0.1f;
 
@@ -87,7 +90,22 @@ public class LensData
     public int CalculateBlurLevel()
     {
         float baseLevel = Mathf.Abs(Spherical) * blurFactorSpherical + Mathf.Abs(Cylindrical) * blurFactorCylindrical;
-        return Mathf.Clamp(Mathf.RoundToInt(baseLevel), 0, 10);
+        int blurLevel = Mathf.Clamp(Mathf.RoundToInt(baseLevel), 0, 10);
+
+        // 최대 선명도에 도달했을 때 렌즈가 미터로 체크되었다고 표시
+        if (blurLevel == 0)
+        {
+            Debug.Log("렌즈미터 체크됨");
+            IsLensMetered = true;
+        }
+
+        return blurLevel;
     }
+
+    // 렌즈가 미터로 체크되었는지 확인하는 메서드
+    public bool GetIsLensMetered()
+    {
+        return IsLensMetered;
+    }    
 }
 
