@@ -48,6 +48,8 @@ public class DragController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         {
             if (RectTransformUtility.RectangleContainsScreenPoint(targetArea, eventData.position, eventData.pressEventCamera))
             {
+
+                // TargetBase
                 rectTransform.anchoredPosition = targetArea.anchoredPosition;
                 glassesController.SetLensPlaced(gameObject.tag);
 
@@ -58,7 +60,7 @@ public class DragController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
                     lensDataManager.UpdateCurrentLens(gameObject);
                     isPlacedOnTargetBase = true;
                 }
-                break;
+                return;
             }
         }
 

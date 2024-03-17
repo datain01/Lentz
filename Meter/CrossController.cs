@@ -29,10 +29,21 @@ public class CrossController : MonoBehaviour
     // 스크롤 방향에 따른 블러 레벨 조정
     public void AdjustBlurLevelByScroll(int direction)
     {
-        // 방향에 따라 블러 레벨 조정
-        currentBlurLevel = Mathf.Clamp(currentBlurLevel - direction, 0, 10);
+        int newBlurLevel = Mathf.Clamp(currentBlurLevel - direction, 0, CrossLevels.Length - 1);
+
+        // 최대 선명도에 도달했는지 체크
+        if (newBlurLevel == 0 && currentBlurLevel != 0)
+        {
+            if (LensDataManager.Instance.CurrentLens != null)
+            {
+                LensDataManager.Instance.SetLensChecked(LensDataManager.Instance.CurrentLens.tag);
+            }
+        }
+
+        currentBlurLevel = newBlurLevel;
         UpdateCrossBlurLevel(currentBlurLevel);
     }
+
 
     public void UpdateCrossBlurImageVisibility(bool isVisible)
     {
