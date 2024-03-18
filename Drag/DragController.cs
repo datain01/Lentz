@@ -43,6 +43,7 @@ public class DragController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
     public void OnEndDrag(PointerEventData eventData)
     {
         bool isPlacedOnTargetBase = false;
+        bool isPlacedOnEnhancer = false;
 
         foreach (var targetArea in targetAreas)
         {
@@ -50,6 +51,7 @@ public class DragController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
             {
                 if (targetArea.CompareTag("Enhancer"))
                 {
+                    isPlacedOnEnhancer = true;
                     // 렌즈가 미터로 체크된 상태인지 확인
                     bool isLensMetered = lensDataManager.GetIsLensMetered(gameObject.tag);
 
@@ -57,9 +59,12 @@ public class DragController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
                     {
                         // 미터로 체크된 경우, Enhancer에 달라붙음
                         rectTransform.anchoredPosition = targetArea.anchoredPosition;
+                        GetComponent<LensSideChanger>()?.ChangeToSideView();
                     }
                     // 미터로 체크되지 않은 경우, 현재 위치에 머물도록 별도의 조치를 취하지 않음
                     return; // Enhancer 처리 후 for 루프 종료
+                } else {
+                    GetComponent<LensSideChanger>()?.RestoreDefaultView(); 
                 }
 
                 // TargetBase
@@ -72,9 +77,16 @@ public class DragController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
                     currentLensOnTargetBase = gameObject;
                     lensDataManager.UpdateCurrentLens(gameObject);
                     isPlacedOnTargetBase = true;
-                }
+                } 
                 return;
             }
+        }
+
+         if (!isPlacedOnEnhancer || !lensDataManager.GetIsLensMetered(gameObject.tag))
+        {
+            // 원래 이미지로 복원
+            var uiElementChanger = GetComponent<UIElementChanger>();
+            GetComponent<LensSideChanger>()?.RestoreDefaultView(); 
         }
 
         if (!isPlacedOnTargetBase && currentLensOnTargetBase == gameObject)

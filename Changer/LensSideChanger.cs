@@ -5,13 +5,11 @@ public class LensSideChanger : MonoBehaviour
 {
     public Sprite sideSprite; // 옆모습 이미지
     private Image lensImage; // 렌즈 이미지 컴포넌트
-    private Sprite defaultSprite; // 기본 이미지는 동적으로 설정
 
+    // Start 메서드에서 초기 설정을 하지 않고, 복원 시 UIElementChanger의 currentSprite 사용
     void Start()
     {
         lensImage = GetComponent<Image>();
-        // Start가 호출될 때 Image 컴포넌트의 현재 스프라이트를 기본 이미지로 설정
-        defaultSprite = lensImage.sprite;
     }
 
     // Enhancer 영역에 드래그앤드랍했을 때 호출
@@ -23,6 +21,11 @@ public class LensSideChanger : MonoBehaviour
     // Enhancer 영역에서 나왔을 때 호출
     public void RestoreDefaultView()
     {
-        lensImage.sprite = defaultSprite;
+        // UIElementChanger 컴포넌트에서 현재 스프라이트를 가져와서 설정
+        UIElementChanger uiElementChanger = GetComponent<UIElementChanger>();
+        if (uiElementChanger != null)
+        {
+            lensImage.sprite = uiElementChanger.currentSprite;
+        }
     }
 }

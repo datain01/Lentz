@@ -8,6 +8,7 @@ public class UIElementChanger : MonoBehaviour
     private List<UIElementData> elementDatas; // UI 요소 데이터 리스트
 
     private Image imageComponent; // 현재 UI 요소의 Image 컴포넌트
+    public Sprite currentSprite;
 
     void Awake()
     {
@@ -20,6 +21,7 @@ public class UIElementChanger : MonoBehaviour
         {
             var selectedData = elementDatas[index];
             imageComponent.sprite = selectedData.sprite;
+            currentSprite = selectedData.sprite;
             RectTransform rectTransform = imageComponent.rectTransform;
             rectTransform.anchoredPosition = selectedData.position;
             rectTransform.sizeDelta = selectedData.size;
