@@ -40,62 +40,77 @@ public class DragController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         CheckLensPlacementDuringDrag();
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+public void OnEndDrag(PointerEventData eventData)
+{
+    bool isPlacedOnTargetBase = false;
+    bool isPlacedOnEnhancer = false;
+
+    Transform suctionChild = gameObject.transform.Find("Suction"); // Suction 자식 컴포넌트 찾기
+
+    foreach (var targetArea in targetAreas)
     {
-        bool isPlacedOnTargetBase = false;
-        bool isPlacedOnEnhancer = false;
-
-        foreach (var targetArea in targetAreas)
+        if (RectTransformUtility.RectangleContainsScreenPoint(targetArea, eventData.position, eventData.pressEventCamera))
         {
-            if (RectTransformUtility.RectangleContainsScreenPoint(targetArea, eventData.position, eventData.pressEventCamera))
+            if (targetArea.CompareTag("Enhancer"))
             {
-                if (targetArea.CompareTag("Enhancer"))
-                {
-                    isPlacedOnEnhancer = true;
-                    // 렌즈가 미터로 체크된 상태인지 확인
-                    bool isLensMetered = lensDataManager.GetIsLensMetered(gameObject.tag);
+                isPlacedOnEnhancer = true;
+                bool isLensMetered = lensDataManager.GetIsLensMetered(gameObject.tag);
+                bool hasSuctionChild = suctionChild != null;
 
-                    if (isLensMetered)
+                if (isLensMetered && hasSuctionChild)
+                {
+                    rectTransform.anchoredPosition = targetArea.anchoredPosition;
+                    GetComponent<LensSideChanger>()?.ChangeToSideView();
+                    if (suctionChild.GetComponent<Image>() != null)
                     {
-                        // 미터로 체크된 경우, Enhancer에 달라붙음
-                        rectTransform.anchoredPosition = targetArea.anchoredPosition;
-                        GetComponent<LensSideChanger>()?.ChangeToSideView();
+                        suctionChild.GetComponent<Image>().enabled = false; // Suction의 이미지 컴포넌트를 비활성화
                     }
-                    // 미터로 체크되지 않은 경우, 현재 위치에 머물도록 별도의 조치를 취하지 않음
-                    return; // Enhancer 처리 후 for 루프 종료
-                } else {
-                    GetComponent<LensSideChanger>()?.RestoreDefaultView(); 
                 }
-
-                // TargetBase
-                rectTransform.anchoredPosition = targetArea.anchoredPosition;
-                glassesController.SetLensPlaced(gameObject.tag);
-
-                if (targetArea.CompareTag("TargetBase"))
-                {
-                    isLensOnTargetBase = true;
-                    currentLensOnTargetBase = gameObject;
-                    lensDataManager.UpdateCurrentLens(gameObject);
-                    isPlacedOnTargetBase = true;
-                } 
-                return;
+                // Enhancer에 달라붙지 않은 경우의 처리는 여기에 필요하지 않음
+                return; // Enhancer 처리 후 for 루프 종료
             }
-        }
+            else
+            {
+                // 다른 TargetArea에 달라붙은 경우
+                GetComponent<LensSideChanger>()?.RestoreDefaultView();
+                if (suctionChild && suctionChild.GetComponent<Image>() != null)
+                {
+                    suctionChild.GetComponent<Image>().enabled = true; // Suction의 이미지 컴포넌트를 다시 활성화
+                }
+            }
 
-         if (!isPlacedOnEnhancer || !lensDataManager.GetIsLensMetered(gameObject.tag))
-        {
-            // 원래 이미지로 복원
-            var uiElementChanger = GetComponent<UIElementChanger>();
-            GetComponent<LensSideChanger>()?.RestoreDefaultView(); 
-        }
+            rectTransform.anchoredPosition = targetArea.anchoredPosition;
+            glassesController.SetLensPlaced(gameObject.tag);
 
-        if (!isPlacedOnTargetBase && currentLensOnTargetBase == gameObject)
-        {
-            lensDataManager.UpdateCurrentLens(null);
-            isLensOnTargetBase = false;
-            currentLensOnTargetBase = null;
+            if (targetArea.CompareTag("TargetBase"))
+            {
+                isLensOnTargetBase = true;
+                currentLensOnTargetBase = gameObject;
+                lensDataManager.UpdateCurrentLens(gameObject);
+                isPlacedOnTargetBase = true;
+            }
+            // TargetArea에 달라붙은 경우 처리 종료
+            return;
         }
     }
+
+    if (!isPlacedOnEnhancer || !lensDataManager.GetIsLensMetered(gameObject.tag))
+    {
+        GetComponent<LensSideChanger>()?.RestoreDefaultView();
+        if (suctionChild && suctionChild.GetComponent<Image>() != null)
+        {
+            suctionChild.GetComponent<Image>().enabled = true; // Enhancer 영역 외부로 드래그한 경우 Suction의 이미지 컴포넌트를 활성화
+        }
+    }
+
+    if (!isPlacedOnTargetBase && currentLensOnTargetBase == gameObject)
+    {
+        lensDataManager.UpdateCurrentLens(null);
+        isLensOnTargetBase = false;
+        currentLensOnTargetBase = null;
+    }
+}
+
 
     private void CheckLensPlacementDuringDrag()
     {
