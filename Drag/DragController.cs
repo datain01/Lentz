@@ -17,6 +17,7 @@ public class DragController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
 
     public static bool isLensOnTargetBase = false;
     public static GameObject currentLensOnTargetBase; // TargetBase에 올려진 렌즈의 참조
+    public EnhancerAreaDetector enhancerAreaDetector;
 
     void Awake()
     {
@@ -56,8 +57,9 @@ public void OnEndDrag(PointerEventData eventData)
                 isPlacedOnEnhancer = true;
                 bool isLensMetered = lensDataManager.GetIsLensMetered(gameObject.tag);
                 bool hasSuctionChild = suctionChild != null;
-
-                if (isLensMetered && hasSuctionChild)
+                
+                
+                if (isLensMetered && hasSuctionChild && !enhancerAreaDetector.IsLensAttached())
                 {
                     rectTransform.anchoredPosition = targetArea.anchoredPosition;
                     GetComponent<LensSideChanger>()?.ChangeToSideView();
