@@ -1,13 +1,15 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnhancerHandle : MonoBehaviour
 {
     public GameObject enhancer; // Enhancer 오브젝트를 인스펙터에서 할당
     private bool isOpen = false; // 현재 Enhancer가 열린 상태인지를 나타내는 플래그
     private float openPosX = 700f; // 열린 상태의 X 위치
-    private float closedPosX = 1200f; // 닫힌 상태의 X 위치
+    private float closedPosX = 1250f; // 닫힌 상태의 X 위치
     private float moveDuration = 0.3f; // Enhancer 이동에 걸리는 시간 (초)
+    public Button handleButton;
 
     public void ToggleEnhancer()
     {
@@ -30,5 +32,13 @@ public class EnhancerHandle : MonoBehaviour
         }
 
         enhancer.transform.localPosition = targetPos; // 최종 위치 확정 (보간으로 인한 작은 오차 보정)
+    }
+
+    public void SetButtonActive(bool isActive)
+    {
+        if (handleButton != null) // handleButton이 할당되었는지 확인
+        {
+            handleButton.interactable = isActive; // 버튼의 interactable 속성을 통해 활성화/비활성화 상태 조정
+        }
     }
 }
