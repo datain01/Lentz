@@ -26,7 +26,7 @@ public class LensDataManager : MonoBehaviour
 
     private void InitializeLensData()
     {
-        LensDataLeft = new LensData(Random.Range(0f, 14f), Random.Range(1f, 12f), Random.Range(1, 8));
+        LensDataLeft = new LensData(Random.Range(1f, 14f), Random.Range(1f, 12f), Random.Range(0, 8));
         LensDataRight = new LensData(LensDataLeft.Spherical + Random.Range(-0.5f, 0.5f),
                                      LensDataLeft.Cylindrical + Random.Range(-0.5f, 0.5f),
                                      LensDataLeft.Lightrical);
