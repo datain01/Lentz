@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class EnhancerCalculator : MonoBehaviour
 {
+
     // 강화 확률 계산 메서드
     public float CalculateEnhancementProbability(float spherical, float cylindrical, int lightrical, int usedLentz)
     {
