@@ -3,11 +3,12 @@ using UnityEngine;
 public class EnhancerCalculator : MonoBehaviour
 {
     public EnhancerAreaDetector enhancerAreaDetector;
+    public EnhancerTextUIUpdater enhancerTextUIUpdater;
 
      void Update()
     {
         if (enhancerAreaDetector.IsLensAttached())
-        {   Debug.Log("Enhancer Lens detected");
+        {   
             ApplyEnhancement();
         }
     }
@@ -32,10 +33,12 @@ public class EnhancerCalculator : MonoBehaviour
             Debug.Log($"Lens Data - Spherical: {lensData.Spherical}, Cylindrical: {lensData.Cylindrical}, Lightrical: {lensData.Lightrical}");
 
             // 강화 확률 계산
-            float enhancementProbability = CalculateEnhancementProbability(lensData.Spherical, lensData.Cylindrical, lensData.Lightrical, 0); // usedLentz는 강화를 위해 사용한 추가 아이템 수량
-
+            float enhancementProbability = CalculateEnhancementProbability(lensData.Spherical, lensData.Cylindrical, lensData.Lightrical, 0); // 기존 계산 로직
+            int roundedProbability = Mathf.CeilToInt(enhancementProbability); // 확률 올림 처리
+            
+            enhancerTextUIUpdater.UpdateLensInfo(lensData.Lightrical, roundedProbability);
             // 강화 확률 로그 출력
-            Debug.Log($"Enhancement Probability: {enhancementProbability}%");
+            Debug.Log($"Enhancement Probability: {roundedProbability}%");
         }
     }
 

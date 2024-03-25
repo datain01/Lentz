@@ -1,16 +1,16 @@
 using UnityEngine;
-using TMPro; 
+using TMPro;
 
 public class EnhancerTextUIUpdater : MonoBehaviour
 {
-    public TextMeshProUGUI textLightrical;
+    public TextMeshProUGUI textInfo; // Lightrical과 확률을 표시할 통합된 TextMeshProUGUI
 
-    // 렌즈의 Lightrical 수치를 텍스트 UI에 업데이트하는 메서드
-    public void UpdateLightricalDisplay(int lightrical)
+    // 렌즈의 Lightrical 수치와 강화 확률을 텍스트 UI에 업데이트하는 메서드
+    public void UpdateLensInfo(int lightrical, int probability)
     {
-        if (textLightrical != null)
+        if (textInfo != null)
         {
-            textLightrical.text = "L " + lightrical.ToString();
+            textInfo.text = $"L {lightrical} ({probability}%)";
         }
     }
 }

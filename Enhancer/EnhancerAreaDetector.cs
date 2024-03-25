@@ -8,7 +8,6 @@ public class EnhancerAreaDetector : MonoBehaviour
 
     public bool IsLensAttached()
     {
-        Debug.Log("Lens attached");
         return attachedLens != null;
     }
 
@@ -35,10 +34,11 @@ public class EnhancerAreaDetector : MonoBehaviour
                     lensDataManager.UpdateCurrentLens(attachedLens); 
                 }
 
+                // OnTriggerEnter2D 메서드 내부에서
                 if (lensData != null)
                 {
-                    // EnhancerTextUIUpdater를 통해 Lightrical 값을 UI에 업데이트
-                    enhancerTextUIUpdater.UpdateLightricalDisplay(lensData.Lightrical);
+                    // Lightrical 값을 표시하고, 초기 강화 확률(예시로 0을 사용)을 함께 표시
+                    enhancerTextUIUpdater.UpdateLensInfo(lensData.Lightrical, 0);
                 }
             }
         }
@@ -51,7 +51,7 @@ public class EnhancerAreaDetector : MonoBehaviour
             attachedLens = null; // 달라붙은 렌즈 초기화
             enhancerHandle.SetButtonActive(true); // EnhancerHandle 버튼 활성화
             // 렌즈가 영역을 벗어났으므로 UI를 초기화하거나 기본값으로 설정
-            enhancerTextUIUpdater.UpdateLightricalDisplay(0); // 예시: 기본값으로 리셋
+            enhancerTextUIUpdater.UpdateLensInfo(0, 0);; // 예시: 기본값으로 리셋
         }
     }
 }
