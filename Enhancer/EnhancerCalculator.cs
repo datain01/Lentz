@@ -62,17 +62,21 @@ public class EnhancerCalculator : MonoBehaviour
 
     private float GetBaseProbability(int lightrical)
     {
+        // lightrical 값에 따른 강화 확률 설정
         switch (lightrical)
         {
-            case 1: return 90f;
-            case 2: return 80f;
-            case 3: return 70f;
-            case 4: return 60f;
-            case 5: return 50f;
-            // 추가 경휘 단계에 따른 확률 설정 가능
-            default: return 50f; // 기본값
+            case 0: return 90f; 
+            case 1: return 80f; 
+            case 2:
+            case 3: return 70f; 
+            case 4:
+            case 5: return 60f; 
+            case 6:
+            case 7: return 50f; 
+            default: return 50f; 
         }
     }
+
 
     private float GetSphericalAdjustment(float spherical)
     {
