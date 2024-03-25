@@ -8,10 +8,11 @@ public class EnhancerAreaDetector : MonoBehaviour
 
     public bool IsLensAttached()
     {
+        Debug.Log("Lens attached");
         return attachedLens != null;
     }
 
- private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if ((other.CompareTag("LensLeft") || other.CompareTag("LensRight")) && attachedLens == null)
         {
@@ -26,10 +27,12 @@ public class EnhancerAreaDetector : MonoBehaviour
                 if (other.CompareTag("LensLeft"))
                 {
                     lensData = lensDataManager.LensDataLeft;
+                    lensDataManager.UpdateCurrentLens(attachedLens); 
                 }
                 else if (other.CompareTag("LensRight"))
                 {
                     lensData = lensDataManager.LensDataRight;
+                    lensDataManager.UpdateCurrentLens(attachedLens); 
                 }
 
                 if (lensData != null)

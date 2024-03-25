@@ -2,6 +2,43 @@ using UnityEngine;
 
 public class EnhancerCalculator : MonoBehaviour
 {
+    public EnhancerAreaDetector enhancerAreaDetector;
+
+     void Update()
+    {
+        if (enhancerAreaDetector.IsLensAttached())
+        {   Debug.Log("Enhancer Lens detected");
+            ApplyEnhancement();
+        }
+    }
+
+    void ApplyEnhancement()
+    {
+        // 렌즈 데이터 매니저에서 현재 렌즈 데이터를 가져옴
+        LensDataManager lensDataManager = LensDataManager.Instance;
+        if (lensDataManager != null && lensDataManager.CurrentLens != null)
+        {
+            LensData lensData;
+            if (lensDataManager.CurrentLens.tag == "LensLeft")
+            {
+                lensData = lensDataManager.LensDataLeft;
+            }
+            else // if (lensDataManager.CurrentLens.tag == "LensRight")
+            {
+                lensData = lensDataManager.LensDataRight;
+            }
+
+            // 렌즈 데이터 로그 출력
+            Debug.Log($"Lens Data - Spherical: {lensData.Spherical}, Cylindrical: {lensData.Cylindrical}, Lightrical: {lensData.Lightrical}");
+
+            // 강화 확률 계산
+            float enhancementProbability = CalculateEnhancementProbability(lensData.Spherical, lensData.Cylindrical, lensData.Lightrical, 0); // usedLentz는 강화를 위해 사용한 추가 아이템 수량
+
+            // 강화 확률 로그 출력
+            Debug.Log($"Enhancement Probability: {enhancementProbability}%");
+        }
+    }
+
 
     // 강화 확률 계산 메서드
     public float CalculateEnhancementProbability(float spherical, float cylindrical, int lightrical, int usedLentz)
