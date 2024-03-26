@@ -71,29 +71,52 @@ public class EnhancerCalculator : MonoBehaviour
         return finalProbability;
     }
 
-    public void OnIncreaseProbabilityByOne()
+    public void IncreaseProbability(int increaseAmount)
     {
-        int lentzToUse = 1; // 사용할 Lentz의 양 설정
-        // LentzManager를 통해 실제로 Lentz를 사용하려고 시도합니다.
-        if (LentzManager.Instance.lentzAmount >= lentzToUse)
+        // 실제 증가시킬 수 있는 최대 확률 계산
+        int actualIncreaseAmount = Mathf.Min(increaseAmount, 100 - CurrentProbability);
+
+        // 실제 증가시킬 수 있는 확률이 0보다 클 때만 작업 수행
+        if (actualIncreaseAmount > 0)
         {
-            // Lentz 사용
-            LentzManager.Instance.UseLentz(lentzToUse);
+            // 렌츠가 충분한지 확인
+            if (LentzManager.Instance.lentzAmount >= actualIncreaseAmount)
+            {
+                // 필요한 만큼의 Lentz 사용
+                LentzManager.Instance.UseLentz(actualIncreaseAmount);
 
-            // 확률 1% 증가
-            CurrentProbability += 1;
-            // 확률 100%를 넘지 않도록 조정
-            CurrentProbability = Mathf.Min(CurrentProbability, 100);
+                // 확률 증가
+                CurrentProbability += actualIncreaseAmount;
+                // 확률 100% 초과 방지는 이제 필요하지 않음(이미 계산에서 반영됨)
 
-            // 확률 변경을 UI에 반영
-            UpdateProbabilityUI();
-            Debug.Log($"Updated Probability: {CurrentProbability}%");
+                // 확률 변경을 UI에 반영
+                UpdateProbabilityUI();
+            }
+            else
+            {
+                Debug.Log("Not enough Lentz to increase probability.");
+            }
         }
         else
         {
-            Debug.Log("Not enough Lentz to increase probability.");
+            Debug.Log("Probability is already at or exceeds 100%.");
         }
     }
+
+
+
+    public void OnIncreaseProbabilityByOne()
+    {
+        IncreaseProbability(1); // 확률을 1만큼 증가
+    }
+
+    public void OnIncreaseProbabilityByTen()
+    {
+        IncreaseProbability(10); // 확률을 10만큼 증가
+    }
+
+
+
 
     private void UpdateProbabilityUI()
     {
