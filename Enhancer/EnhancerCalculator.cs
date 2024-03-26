@@ -41,6 +41,8 @@ public class EnhancerCalculator : MonoBehaviour
             Debug.Log($"Enhancement Probability: {roundedProbability}%");
         }
     }
+    // Debug.Log($"Lens Data - Spherical: {lensData.Spherical}, Cylindrical: {lensData.Cylindrical}, Lightrical: {lensData.Lightrical}");
+    // Debug.Log($"Enhancement Probability: {roundedProbability}%");
 
 
     // 강화 확률 계산 메서드
@@ -54,11 +56,12 @@ public class EnhancerCalculator : MonoBehaviour
         baseProbability -= GetCylindricalAdjustment(cylindrical);
         
         // 렌츠 사용에 따른 확률 증가
-        baseProbability += usedLentz * 1f; // 렌츠 1개당 확률 1% 증가
+        baseProbability += GetLentzAdjustment(usedLentz); // 렌츠 사용량에 따른 확률 증가 로직 추가
         
         // 확률 100% 초과 방지
         return Mathf.Min(baseProbability, 100f);
     }
+
 
     private float GetBaseProbability(int lightrical)
     {
@@ -88,5 +91,11 @@ public class EnhancerCalculator : MonoBehaviour
     {
         // 1마다 기본 확률 0.2% 감소
         return cylindrical * 0.2f;
+    }
+
+    private float GetLentzAdjustment(int usedLentz)
+    {
+        // 렌츠 1개당 확률 1% 증가
+        return usedLentz * 1f;
     }
 }
