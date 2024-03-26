@@ -5,13 +5,24 @@ public class EnhancerCalculator : MonoBehaviour
     public EnhancerAreaDetector enhancerAreaDetector;
     public EnhancerTextUIUpdater enhancerTextUIUpdater;
 
-     void Update()
+    public int CurrentProbability { get; set; }
+
+
+     private bool hasCalculatedProbability = false;
+
+    void Update()
     {
-        if (enhancerAreaDetector.IsLensAttached())
-        {   
+        if (enhancerAreaDetector.IsLensAttached() && !hasCalculatedProbability)
+        {
             ApplyEnhancement();
+            hasCalculatedProbability = true; // 확률 계산을 했다는 표시를 남깁니다.
+        }
+        else if (!enhancerAreaDetector.IsLensAttached())
+        {
+            hasCalculatedProbability = false; // 렌즈가 감지되지 않으면 다시 계산할 준비를 합니다.
         }
     }
+
 
     void ApplyEnhancement()
     {
@@ -33,20 +44,17 @@ public class EnhancerCalculator : MonoBehaviour
             Debug.Log($"Lens Data - Spherical: {lensData.Spherical}, Cylindrical: {lensData.Cylindrical}, Lightrical: {lensData.Lightrical}");
 
             // 강화 확률 계산
-            float enhancementProbability = CalculateEnhancementProbability(lensData.Spherical, lensData.Cylindrical, lensData.Lightrical, 0); // 기존 계산 로직
-            int roundedProbability = Mathf.CeilToInt(enhancementProbability); // 확률 올림 처리
-            
-            enhancerTextUIUpdater.UpdateLensInfo(lensData.Lightrical, roundedProbability);
+            CurrentProbability = CalculateEnhancementProbability(lensData.Spherical, lensData.Cylindrical, lensData.Lightrical, 0);
+        
+            enhancerTextUIUpdater.UpdateLensInfo(lensData.Lightrical, CurrentProbability);
             // 강화 확률 로그 출력
-            Debug.Log($"Enhancement Probability: {roundedProbability}%");
+            Debug.Log($"Enhancement Probability: {CurrentProbability}%");
         }
     }
-    // Debug.Log($"Lens Data - Spherical: {lensData.Spherical}, Cylindrical: {lensData.Cylindrical}, Lightrical: {lensData.Lightrical}");
-    // Debug.Log($"Enhancement Probability: {roundedProbability}%");
 
 
     // 강화 확률 계산 메서드
-    public float CalculateEnhancementProbability(float spherical, float cylindrical, int lightrical, int usedLentz)
+    public int CalculateEnhancementProbability(float spherical, float cylindrical, int lightrical, int usedLentz)
     {
         // 기본 확률 설정
         float baseProbability = GetBaseProbability(lightrical);
@@ -56,11 +64,59 @@ public class EnhancerCalculator : MonoBehaviour
         baseProbability -= GetCylindricalAdjustment(cylindrical);
         
         // 렌츠 사용에 따른 확률 증가
-        baseProbability += GetLentzAdjustment(usedLentz); // 렌츠 사용량에 따른 확률 증가 로직 추가
+        baseProbability += GetLentzAdjustment(usedLentz);
         
-        // 확률 100% 초과 방지
-        return Mathf.Min(baseProbability, 100f);
+        // 확률 100% 초과 방지 및 반올림 처리
+        int finalProbability = Mathf.Clamp(Mathf.CeilToInt(baseProbability), 0, 100);
+        return finalProbability;
     }
+
+    public void OnIncreaseProbabilityByOne()
+    {
+        int lentzToUse = 1; // 사용할 Lentz의 양 설정
+        // LentzManager를 통해 실제로 Lentz를 사용하려고 시도합니다.
+        if (LentzManager.Instance.lentzAmount >= lentzToUse)
+        {
+            // Lentz 사용
+            LentzManager.Instance.UseLentz(lentzToUse);
+
+            // 확률 1% 증가
+            CurrentProbability += 1;
+            // 확률 100%를 넘지 않도록 조정
+            CurrentProbability = Mathf.Min(CurrentProbability, 100);
+
+            // 확률 변경을 UI에 반영
+            UpdateProbabilityUI();
+            Debug.Log($"Updated Probability: {CurrentProbability}%");
+        }
+        else
+        {
+            Debug.Log("Not enough Lentz to increase probability.");
+        }
+    }
+
+    private void UpdateProbabilityUI()
+    {
+        if (LensDataManager.Instance.CurrentLens != null)
+        {
+            LensData currentLensData = null;
+            if (LensDataManager.Instance.CurrentLens.tag == "LensLeft")
+            {
+                currentLensData = LensDataManager.Instance.LensDataLeft;
+            }
+            else if (LensDataManager.Instance.CurrentLens.tag == "LensRight")
+            {
+                currentLensData = LensDataManager.Instance.LensDataRight;
+            }
+
+            if (currentLensData != null)
+            {
+                enhancerTextUIUpdater.UpdateLensInfo(currentLensData.Lightrical, CurrentProbability);
+            }
+        }
+    }
+
+
 
 
     private float GetBaseProbability(int lightrical)
