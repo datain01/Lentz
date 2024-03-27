@@ -81,10 +81,9 @@ public class EnhancerAreaDetector : MonoBehaviour
             if (EnhancerCalculator.Instance != null)
             {
                 EnhancerCalculator.Instance.pendingLentzUsage = 0;
-                // EnhancerCalculator.Instance.UpdateProbabilityUI(); // UI도 업데이트 해줘야 할 수 있음
             }
             
-            enhancerTextUIUpdater.UpdateLensInfo(0, 0);; // 예시: 기본값으로 리셋
+            enhancerTextUIUpdater.UpdateLensInfo(0, 0);
         }
     }
 }

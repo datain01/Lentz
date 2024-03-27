@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 
 public class EnhancerCalculator : MonoBehaviour
@@ -7,6 +8,8 @@ public class EnhancerCalculator : MonoBehaviour
     public static EnhancerCalculator Instance { get; private set; }
     public EnhancerAreaDetector enhancerAreaDetector;
     public EnhancerTextUIUpdater enhancerTextUIUpdater;
+    [SerializeField]
+    private TextMeshProUGUI enhancementResultText;
 
     public int CurrentProbability { get; set; }
     private bool hasCalculatedProbability = false;
@@ -66,21 +69,24 @@ public class EnhancerCalculator : MonoBehaviour
             if (!enhancerAreaDetector.IsLensAttached() || pendingLentzUsage > LentzManager.Instance.lentzAmount) return;
 
             // 렌츠 사용을 진행합니다.
+            CurrentProbability += pendingLentzUsage;
             LentzManager.Instance.UseLentz(pendingLentzUsage); // 실제로 렌츠를 사용합니다.
             pendingLentzUsage = 0; // 사용 후 초기화
 
             LensData currentLensData = GetCurrentLensData();
             if (currentLensData == null) return;
 
-            int randomChance = Random.Range(0, 100);
+            int randomChance = Random.Range(0, 101);
+            Debug.Log($"Random Chance: {randomChance}, Current Probability: {CurrentProbability}");
             if (randomChance < CurrentProbability)
             {
-                // 강화 성공
+                enhancementResultText.text = "success!";
                 Debug.Log("Enhancement successful!");
                 currentLensData.IncreaseLightrical();
             }
             else
             {
+                enhancementResultText.text = "Failed";
                 Debug.Log("Enhancement failed.");
             }
 
@@ -144,18 +150,27 @@ public class EnhancerCalculator : MonoBehaviour
 
     public void IncreaseProbability(int increaseAmount)
     {
-        int potentialNewUsage = pendingLentzUsage + increaseAmount;
-        // 렌츠가 충분한지 확인하고, 충분하다면 pendingLentzUsage를 업데이트합니다.
-        if (LentzManager.Instance.lentzAmount >= potentialNewUsage)
+        // 임시 확률 계산 (현재 확률 + 사용 예정인 렌츠로 인한 확률 증가량)
+        int tempProbability = CurrentProbability + pendingLentzUsage;
+
+        // 실제로 증가할 수 있는 확률 계산 (100%를 초과하지 않도록 제한)
+        int actualIncrease = Mathf.Min(increaseAmount, 100 - tempProbability);
+
+        // 실제로 증가할 수 있는 렌츠 사용량 계산
+        int actualLentzUsage = actualIncrease; // 확률 증가량과 렌츠 사용량이 1:1 비율일 경우
+
+        // 렌츠가 충분한지 확인하고, 충분하다면 pendingLentzUsage 업데이트
+        if (LentzManager.Instance.lentzAmount >= pendingLentzUsage + actualLentzUsage)
         {
-            // 여기서 확률을 재계산하고 UI를 업데이트합니다.
-            pendingLentzUsage = potentialNewUsage;
-            // 임시 확률 업데이트 (실제 사용 전 확률 변경 반영)
+            pendingLentzUsage += actualLentzUsage;
+
+            // 확률과 UI 업데이트
             LensData currentLensData = GetCurrentLensData();
             if (currentLensData != null)
             {
-                int tempProbability = CalculateEnhancementProbability(currentLensData.Spherical, currentLensData.Cylindrical, currentLensData.Lightrical, pendingLentzUsage);
-                enhancerTextUIUpdater.UpdateLensInfo(currentLensData.Lightrical, tempProbability);
+                // 임시 확률로 UI 업데이트
+                int newTempProbability = CalculateEnhancementProbability(currentLensData.Spherical, currentLensData.Cylindrical, currentLensData.Lightrical, pendingLentzUsage);
+                enhancerTextUIUpdater.UpdateLensInfo(currentLensData.Lightrical, newTempProbability);
             }
         }
         else
@@ -163,6 +178,7 @@ public class EnhancerCalculator : MonoBehaviour
             Debug.Log("Not enough Lentz to prepare for this probability increase.");
         }
     }
+
 
     public void OnIncreaseProbabilityByOne()
     {
