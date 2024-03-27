@@ -5,8 +5,13 @@ public class EnhancerAreaDetector : MonoBehaviour
 {
     public EnhancerHandle enhancerHandle;
     public EnhancerTextUIUpdater enhancerTextUIUpdater;
-    public Button[] increaseProbabilityButtons; // 확률 증가 버튼들에 대한 참조    
-    private GameObject attachedLens = null; // 현재 Enhancer에 달라붙은 렌즈
+    public Button[] increaseProbabilityButtons; 
+    private GameObject attachedLens = null; 
+
+    private void Awake()
+    {
+        SetIncreaseButtonsActive(false);
+    }
 
      private void SetIncreaseButtonsActive(bool isActive)
     {

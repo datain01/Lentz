@@ -80,16 +80,11 @@ public class EnhancerCalculator : MonoBehaviour
         if (actualIncreaseAmount > 0)
         {
             // 렌츠가 충분한지 확인
-            if (LentzManager.Instance.lentzAmount >= actualIncreaseAmount)
+            if (actualIncreaseAmount > 0 && LentzManager.Instance.lentzAmount >= actualIncreaseAmount)
             {
-                // 필요한 만큼의 Lentz 사용
                 LentzManager.Instance.UseLentz(actualIncreaseAmount);
-
-                // 확률 증가
                 CurrentProbability += actualIncreaseAmount;
-                // 확률 100% 초과 방지는 이제 필요하지 않음(이미 계산에서 반영됨)
-
-                // 확률 변경을 UI에 반영
+                totalUsedLentz += actualIncreaseAmount; // 소모한 렌츠 양 업데이트
                 UpdateProbabilityUI();
             }
             else
@@ -103,8 +98,6 @@ public class EnhancerCalculator : MonoBehaviour
         }
     }
 
-
-
     public void OnIncreaseProbabilityByOne()
     {
         IncreaseProbability(1); // 확률을 1만큼 증가
@@ -114,6 +107,48 @@ public class EnhancerCalculator : MonoBehaviour
     {
         IncreaseProbability(10); // 확률을 10만큼 증가
     }
+
+    public void DecreaseProbabilityAndRefundLentz()
+    {
+        if (totalUsedLentz > 0)
+        {
+            // 확률 감소
+            CurrentProbability -= 1;
+            // 렌츠 반환
+            LentzManager.Instance.AddLentz(1);
+            totalUsedLentz -= 1; // 사용된 렌츠 양 감소
+
+            UpdateProbabilityUI();
+        }
+        else
+        {
+            Debug.Log("No lentz to refund, or probability is at minimum.");
+        }
+    }
+
+    public void DecreaseProbabilityAndRefundLentzByTen()
+    {
+        int refundAmount = 10; // 환불할 렌츠의 양
+
+        // 실제로 환불할 수 있는 양 계산 (사용된 렌츠 양과 현재 확률을 고려)
+        int actualRefundAmount = Mathf.Min(refundAmount, totalUsedLentz, CurrentProbability);
+
+        if (actualRefundAmount > 0)
+        {
+            // 확률 감소
+            CurrentProbability -= actualRefundAmount;
+            // 렌츠 반환
+            LentzManager.Instance.AddLentz(actualRefundAmount);
+            totalUsedLentz -= actualRefundAmount; // 사용된 렌츠 양 감소
+
+            UpdateProbabilityUI();
+        }
+        else
+        {
+            Debug.Log("No lentz to refund, or probability is at minimum.");
+        }
+    }
+
 
 
 
