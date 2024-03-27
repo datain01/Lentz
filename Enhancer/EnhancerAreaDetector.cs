@@ -1,10 +1,23 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnhancerAreaDetector : MonoBehaviour
 {
     public EnhancerHandle enhancerHandle;
     public EnhancerTextUIUpdater enhancerTextUIUpdater;
+    public Button[] increaseProbabilityButtons; // 확률 증가 버튼들에 대한 참조    
     private GameObject attachedLens = null; // 현재 Enhancer에 달라붙은 렌즈
+
+     private void SetIncreaseButtonsActive(bool isActive)
+    {
+        foreach (var button in increaseProbabilityButtons)
+        {
+            if (button != null) // 버튼이 할당되었는지 확인
+            {
+                button.interactable = isActive; // 버튼의 interactable 속성 조정
+            }
+        }
+    }
 
     public bool IsLensAttached()
     {
@@ -17,6 +30,7 @@ public class EnhancerAreaDetector : MonoBehaviour
         {
             attachedLens = other.gameObject; // 달라붙은 렌즈 설정
             enhancerHandle.SetButtonActive(false); // EnhancerHandle 버튼 비활성화
+            SetIncreaseButtonsActive(true); // 확률 증가 버튼 활성화
 
             // 렌즈의 Lightrical 값을 가져와 UI에 표시
             LensDataManager lensDataManager = LensDataManager.Instance;
@@ -50,7 +64,7 @@ public class EnhancerAreaDetector : MonoBehaviour
         {
             attachedLens = null; // 달라붙은 렌즈 초기화
             enhancerHandle.SetButtonActive(true); // EnhancerHandle 버튼 활성화
-            // 렌즈가 영역을 벗어났으므로 UI를 초기화하거나 기본값으로 설정
+            SetIncreaseButtonsActive(false);
             enhancerTextUIUpdater.UpdateLensInfo(0, 0);; // 예시: 기본값으로 리셋
         }
     }

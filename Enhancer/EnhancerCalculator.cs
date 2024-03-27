@@ -6,9 +6,9 @@ public class EnhancerCalculator : MonoBehaviour
     public EnhancerTextUIUpdater enhancerTextUIUpdater;
 
     public int CurrentProbability { get; set; }
+    private bool hasCalculatedProbability = false;
+    public int totalUsedLentz = 0;
 
-
-     private bool hasCalculatedProbability = false;
 
     void Update()
     {
