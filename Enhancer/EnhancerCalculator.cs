@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class EnhancerCalculator : MonoBehaviour
 {
@@ -7,7 +9,12 @@ public class EnhancerCalculator : MonoBehaviour
 
     public int CurrentProbability { get; set; }
     private bool hasCalculatedProbability = false;
+    public int pendingLentzUsage = 0;
     public int totalUsedLentz = 0;
+
+    [SerializeField]
+    private Button[] enhanceButtons; // Unity Inspector에서 할당
+
 
 
     void Update()
@@ -23,52 +30,74 @@ public class EnhancerCalculator : MonoBehaviour
         }
     }
 
+    public void PrepareLentzUsage(int amount)
+    {
+        pendingLentzUsage += amount;
+        // UI 업데이트 로직 추가 (확률 표시 업데이트 필요 없음)
+    }
+
     public void TryEnhanceLightrical()
     {
-        if (!enhancerAreaDetector.IsLensAttached()) return; // 렌즈가 없으면 바로 반환
+        if (!enhancerAreaDetector.IsLensAttached() || pendingLentzUsage > LentzManager.Instance.lentzAmount) return;
 
-        int randomChance = Random.Range(0, 100);
-        if (randomChance < CurrentProbability)
+        // 렌츠 사용을 진행하고 확률을 재계산합니다.
+        LentzManager.Instance.UseLentz(pendingLentzUsage);
+        LensData currentLensData = GetCurrentLensData();
+        if (currentLensData != null)
         {
-            // 강화 성공
-            Debug.Log("Enhancement successful!");
-            LensDataManager.Instance.IncreaseLightrical();
+            int randomChance = Random.Range(0, 100);
+            if (randomChance < CurrentProbability)
+            {
+                Debug.Log("Enhancement successful!");
+                currentLensData.IncreaseLightrical();
+            }
+            else
+            {
+                Debug.Log("Enhancement failed.");
+            }
 
-            // UI 업데이트 로직이 필요한 경우 여기에 추가
-        }
-        else
-        {
-            // 강화 실패
-            Debug.Log("Enhancement failed.");
-        }
+            // 강화 시도 후 사용된 렌츠 수와 확률을 리셋합니다.
+            pendingLentzUsage = 0;
+            CurrentProbability = CalculateEnhancementProbability(currentLensData.Spherical, currentLensData.Cylindrical, currentLensData.Lightrical, 0);
+
+            if (currentLensData.Lightrical >= 8)
+            {
+                foreach (var button in enhanceButtons){
+                button.interactable = false; // 경휘가 8이상이면 버튼 비활성화
+                } 
+                Debug.Log("Lightrical reached maximum value. Enhancement disabled.");
+            }
+            }
+            else
+            {
+                // 강화 실패
+                Debug.Log("Enhancement failed.");
+            }
     }
 
 
+
+     private LensData GetCurrentLensData()
+    {
+        if (LensDataManager.Instance.CurrentLens?.tag == "LensLeft")
+        {
+            return LensDataManager.Instance.LensDataLeft;
+        }
+        else if (LensDataManager.Instance.CurrentLens?.tag == "LensRight")
+        {
+            return LensDataManager.Instance.LensDataRight;
+        }
+        return null;
+    }
+
     void ApplyEnhancement()
     {
-        // 렌즈 데이터 매니저에서 현재 렌즈 데이터를 가져옴
-        LensDataManager lensDataManager = LensDataManager.Instance;
-        if (lensDataManager != null && lensDataManager.CurrentLens != null)
+        LensData currentLensData = GetCurrentLensData();
+        if (currentLensData != null)
         {
-            LensData lensData;
-            if (lensDataManager.CurrentLens.tag == "LensLeft")
-            {
-                lensData = lensDataManager.LensDataLeft;
-            }
-            else // if (lensDataManager.CurrentLens.tag == "LensRight")
-            {
-                lensData = lensDataManager.LensDataRight;
-            }
-
-            // 렌즈 데이터 로그 출력
-            Debug.Log($"Lens Data - Spherical: {lensData.Spherical}, Cylindrical: {lensData.Cylindrical}, Lightrical: {lensData.Lightrical}");
-
-            // 강화 확률 계산
-            CurrentProbability = CalculateEnhancementProbability(lensData.Spherical, lensData.Cylindrical, lensData.Lightrical, 0);
-        
-            enhancerTextUIUpdater.UpdateLensInfo(lensData.Lightrical, CurrentProbability);
-            // 강화 확률 로그 출력
-            Debug.Log($"Enhancement Probability: {CurrentProbability}%");
+            Debug.Log($"Lens Data - Spherical: {currentLensData.Spherical}, Cylindrical: {currentLensData.Cylindrical}, Lightrical: {currentLensData.Lightrical}");
+            CurrentProbability = CalculateEnhancementProbability(currentLensData.Spherical, currentLensData.Cylindrical, currentLensData.Lightrical, 0);
+            enhancerTextUIUpdater.UpdateLensInfo(currentLensData.Lightrical, CurrentProbability);
         }
     }
 
@@ -76,19 +105,13 @@ public class EnhancerCalculator : MonoBehaviour
     // 강화 확률 계산 메서드
     public int CalculateEnhancementProbability(float spherical, float cylindrical, int lightrical, int usedLentz)
     {
-        // 기본 확률 설정
-        float baseProbability = GetBaseProbability(lightrical);
-        
-        // 도수와 난시에 따른 확률 조정
-        baseProbability -= GetSphericalAdjustment(spherical);
-        baseProbability -= GetCylindricalAdjustment(cylindrical);
-        
-        // 렌츠 사용에 따른 확률 증가
-        baseProbability += GetLentzAdjustment(usedLentz);
-        
-        // 확률 100% 초과 방지 및 반올림 처리
-        int finalProbability = Mathf.Clamp(Mathf.CeilToInt(baseProbability), 0, 100);
-        return finalProbability;
+        if (lightrical >= 8)
+        {
+            return 0;
+        }
+
+        float baseProbability = GetBaseProbability(lightrical) - GetSphericalAdjustment(spherical) - GetCylindricalAdjustment(cylindrical) + GetLentzAdjustment(usedLentz);
+        return Mathf.Clamp(Mathf.CeilToInt(baseProbability), 0, 100);
     }
 
     public void IncreaseProbability(int increaseAmount)

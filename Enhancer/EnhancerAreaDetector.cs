@@ -5,7 +5,7 @@ public class EnhancerAreaDetector : MonoBehaviour
 {
     public EnhancerHandle enhancerHandle;
     public EnhancerTextUIUpdater enhancerTextUIUpdater;
-    public Button[] increaseProbabilityButtons; 
+    public Button[] enhanceButtons; 
     public GameObject attachedLens = null; 
 
     private void Awake()
@@ -15,7 +15,7 @@ public class EnhancerAreaDetector : MonoBehaviour
 
      private void SetIncreaseButtonsActive(bool isActive)
     {
-        foreach (var button in increaseProbabilityButtons)
+        foreach (var button in enhanceButtons)
         {
             if (button != null) // 버튼이 할당되었는지 확인
             {
@@ -53,12 +53,19 @@ public class EnhancerAreaDetector : MonoBehaviour
                     lensDataManager.UpdateCurrentLens(attachedLens); 
                 }
 
-                // OnTriggerEnter2D 메서드 내부에서
-                if (lensData != null)
+                // Lightrical 값에 따른 강화 버튼 활성화/비활성화
+                if (lensData.Lightrical >= 8)
                 {
-                    // Lightrical 값을 표시하고, 초기 강화 확률(예시로 0을 사용)을 함께 표시
-                    enhancerTextUIUpdater.UpdateLensInfo(lensData.Lightrical, 0);
+                    // Lightrical 값이 8 이상이면 강화 버튼 비활성화
+                    SetIncreaseButtonsActive(false);
                 }
+                else
+                {
+                    // 그렇지 않으면 강화 버튼 활성화
+                    SetIncreaseButtonsActive(true);
+                }
+
+                enhancerTextUIUpdater.UpdateLensInfo(lensData.Lightrical, 0);
             }
         }
     }
