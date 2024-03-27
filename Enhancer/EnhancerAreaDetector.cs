@@ -77,6 +77,13 @@ public class EnhancerAreaDetector : MonoBehaviour
             attachedLens = null; // 달라붙은 렌즈 초기화
             enhancerHandle.SetButtonActive(true); // EnhancerHandle 버튼 활성화
             SetIncreaseButtonsActive(false);
+
+            if (EnhancerCalculator.Instance != null)
+            {
+                EnhancerCalculator.Instance.pendingLentzUsage = 0;
+                // EnhancerCalculator.Instance.UpdateProbabilityUI(); // UI도 업데이트 해줘야 할 수 있음
+            }
+            
             enhancerTextUIUpdater.UpdateLensInfo(0, 0);; // 예시: 기본값으로 리셋
         }
     }
