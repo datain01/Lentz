@@ -23,6 +23,26 @@ public class EnhancerCalculator : MonoBehaviour
         }
     }
 
+    public void TryEnhanceLightrical()
+    {
+        if (!enhancerAreaDetector.IsLensAttached()) return; // 렌즈가 없으면 바로 반환
+
+        int randomChance = Random.Range(0, 100);
+        if (randomChance < CurrentProbability)
+        {
+            // 강화 성공
+            Debug.Log("Enhancement successful!");
+            LensDataManager.Instance.IncreaseLightrical();
+
+            // UI 업데이트 로직이 필요한 경우 여기에 추가
+        }
+        else
+        {
+            // 강화 실패
+            Debug.Log("Enhancement failed.");
+        }
+    }
+
 
     void ApplyEnhancement()
     {
@@ -148,11 +168,6 @@ public class EnhancerCalculator : MonoBehaviour
             Debug.Log("No lentz to refund, or probability is at minimum.");
         }
     }
-
-
-
-
-
     private void UpdateProbabilityUI()
     {
         if (LensDataManager.Instance.CurrentLens != null)
@@ -173,9 +188,6 @@ public class EnhancerCalculator : MonoBehaviour
             }
         }
     }
-
-
-
 
     private float GetBaseProbability(int lightrical)
     {

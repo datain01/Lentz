@@ -93,6 +93,23 @@ public class LensDataManager : MonoBehaviour
         return false;
     }
 
+    public void IncreaseLightrical()
+    {
+        // CurrentLens를 사용하여 현재 얹혀 있는 렌즈에 접근
+        GameObject attachedLens = CurrentLens;
+        if (attachedLens != null)
+        {
+            LensData lensData = attachedLens.CompareTag("LensLeft") ? LensDataLeft : LensDataRight;
+            if (lensData != null)
+            {
+                // Lightrical 값을 증가시키는 로직
+                lensData.IncreaseLightrical();
+                Debug.Log($"Lightrical increased to {lensData.Lightrical}");
+            }
+        }
+    }
+
+
 }
 
 [System.Serializable]
@@ -118,5 +135,12 @@ public class LensData
         float baseLevel = Mathf.Abs(Spherical) * blurFactorSpherical + Mathf.Abs(Cylindrical) * blurFactorCylindrical;
         return Mathf.Clamp(Mathf.RoundToInt(baseLevel), 0, 10);
     }
+
+    public void IncreaseLightrical()
+{
+    Lightrical = Mathf.Min(Lightrical + 1, 8); 
+}
+
+
 }
 

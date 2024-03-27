@@ -6,7 +6,7 @@ public class EnhancerAreaDetector : MonoBehaviour
     public EnhancerHandle enhancerHandle;
     public EnhancerTextUIUpdater enhancerTextUIUpdater;
     public Button[] increaseProbabilityButtons; 
-    private GameObject attachedLens = null; 
+    public GameObject attachedLens = null; 
 
     private void Awake()
     {
