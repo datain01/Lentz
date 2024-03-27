@@ -83,11 +83,13 @@ public class EnhancerCalculator : MonoBehaviour
                 enhancementResultText.text = "success!";
                 Debug.Log("Enhancement successful!");
                 currentLensData.IncreaseLightrical();
+                ScoreManager.Instance.AddScore(1000);
             }
             else
             {
                 enhancementResultText.text = "Failed";
                 Debug.Log("Enhancement failed.");
+                ScoreManager.Instance.SubtractScore(500);
             }
 
             pendingLentzUsage = 0;
@@ -190,7 +192,7 @@ public class EnhancerCalculator : MonoBehaviour
         IncreaseProbability(10); // 확률을 10만큼 증가
     }
 
-    public void DecreaseProbabilityAndRefundLentz()
+    public void OnDecreaseProbabilityByOne()
 {
     if (pendingLentzUsage > 0)
     {
@@ -206,7 +208,7 @@ public class EnhancerCalculator : MonoBehaviour
     }
 }
 
-public void DecreaseProbabilityAndRefundLentzByTen()
+public void OnDecreaseProbabilityByTen()
 {
     int actualDecreaseAmount = Mathf.Min(10, pendingLentzUsage);
     if (actualDecreaseAmount > 0)
