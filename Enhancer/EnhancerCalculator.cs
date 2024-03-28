@@ -80,15 +80,14 @@ public class EnhancerCalculator : MonoBehaviour
             Debug.Log($"Random Chance: {randomChance}, Current Probability: {CurrentProbability}");
             if (randomChance < CurrentProbability)
             {
-                enhancementResultText.text = "success!";
                 Debug.Log("Enhancement successful!");
+                enhancementResultText.text = "success!";                
                 currentLensData.IncreaseLightrical();
                 ScoreManager.Instance.AddScore(1000);
             }
-            else
-            {
-                enhancementResultText.text = "Failed";
+            else  {
                 Debug.Log("Enhancement failed.");
+                enhancementResultText.text = "Failed";                
                 ScoreManager.Instance.SubtractScore(500);
             }
 
@@ -104,11 +103,6 @@ public class EnhancerCalculator : MonoBehaviour
                 Debug.Log("Lightrical reached maximum value. Enhancement disabled.");
             }
             
-            else
-            {
-                // 강화 실패
-                Debug.Log("Enhancement failed.");
-            }
         }
 
 
